@@ -10,11 +10,11 @@ def organizarOrdemCrescente (pontos ) :
    while i < len(pontos) :      
 # 'indice Atual' é só pra diferenciar de i
 
-         #1º interação           #2º interacao       #3º interação -- o itemAtual é menor que o itemAnterior então o else para as 3 interações do while
+#                           #1º interação                #2º interacao      #3º interação -- o itemAtual é menor que o itemAnterior então o else para as 3 interações do while
 
-      indiceAtual = i  # indiceAtual = 1        #indiceAtual = 2
-      itemAtual = pontos[i] # itemAtual = 15       #itemAtual = 1
-      nomeAtual = nomes[i]  #nomeAtual = alexandre       #nomeAtual = valdemir
+      indiceAtual = i       # indiceAtual = 1            #indiceAtual = 2
+      itemAtual = pontos[i] # itemAtual = 15             #itemAtual = 1
+      nomeAtual = nomes[i]   
 
       # não uso o i no lugar do IndiceAtual por que eu mudo o valor de (i) 2 vezes no codigo e isso acabava me confundindo eventualmente
       while indiceAtual > 0 :                                           
