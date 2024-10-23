@@ -31,7 +31,7 @@ def listarUsuariosCadastrados(usuariosCadastrados) :
       'user_name' : response[i]['user_name'],
       'password' : response[i]['password']
         })
-
+    
 
 usuariosCadastrados = []
 listarUsuariosCadastrados(usuariosCadastrados)
@@ -48,44 +48,44 @@ def verificarEmail (email) :
 
 
 def cadastrar() :
-    # try :
-        usuariosCadastrados = []
-        listarUsuariosCadastrados(usuariosCadastrados)
+  try :
+      usuariosCadastrados = []
+      listarUsuariosCadastrados(usuariosCadastrados)
 
-        id = str(uuid.uuid4())
-        email = input('Digite seu email: ')
-        if verificarEmail(email) != True :
-            print('Email inválido, tente novamente.')
-            cadastrar()
+      id = str(uuid.uuid4())
+      email = input('Digite seu email: ')
+      if verificarEmail(email) != True :
+        print('Email inválido, tente novamente.')
+        cadastrar()
 
-        name = input('Digite seu nome completo: ')
-        user_name = input('Digite seu user_name: ')
+      name = input('Digite seu nome completo: ')
+      user_name = input('Digite seu user_name: ')
 
-        for i in usuariosCadastrados :
-            if i['email'] ==  email or i['user_name'] ==  user_name :
-                print('Email ou nome de usuário já cadastrado , tente outro.')
-                cadastrar()
-        tamanho_user_name = len(user_name)
+      for i in usuariosCadastrados :
+        if i['email'] ==  email or i['user_name'] ==  user_name :
+          print('Email ou nome de usuário já cadastrado , tente outro.')
+          cadastrar()
+      tamanho_user_name = len(user_name)
 
-        if tamanho_user_name >= 40 or tamanho_user_name <= 5 :
-            print('O nome de usuário deve conter entre 5 e 20 caracteres')
+      if tamanho_user_name >= 40 or tamanho_user_name <= 5 :
+        print('O nome de usuário deve conter entre 5 e 20 caracteres')
 
-        password = input('Digite sua senha: ')
+      password = input('Digite sua senha: ')
 
-        if len(password) <= 6 :
-            print('A senha deve conter no mínimo 6 caracteres')
-            cadastrar()
-        elif len(password) > 16 :
-            print('A senha não pode ter mais que 16 caracteres')
-            cadastrar()
+      if len(password) <= 6 :
+        print('A senha deve conter no mínimo 6 caracteres')
+        cadastrar()
+      elif len(password) > 16 :
+        print('A senha não pode ter mais que 16 caracteres')
+        cadastrar()
 
-        supabase.table("usuarios").insert({"id": id , "email" : email ,"name": name , "user_name":user_name , "password" :password }).execute()
+      supabase.table("usuarios").insert({"id": id , "email" : email ,"name": name , "user_name":user_name , "password" :password }).execute()
 
-        print('Usuário cadastrado com sucesso!')
+      print('Usuário cadastrado com sucesso!')
 
-    # except:
-    #     print('Houve um erro\nTente novamente mais tarde')
-    #     cadastrar()
+  except:
+      print('Houve um erro\nTente novamente mais tarde')
+      cadastrar()
 
 def login(id) :
   try :
@@ -94,8 +94,8 @@ def login(id) :
     response = supabase.table("usuarios").select("*").eq("user_name" , user_name ).eq("password" , password).execute().data
 
     if user_name != response[0]['user_name'] or password != response[0]['password'] :
-        print('Usuário Não Cadastrado, ou senha/user name incorreta.')
-        return login()
+      print('Usuário Não Cadastrado, ou senha/user name incorreta.')
+      return login()
 
     print(response[0]['email'] , " -- " , response[0]['user_name'] , " -- Logado com sucesso")
 
@@ -118,6 +118,7 @@ def mostrarUsuarios () :
 def comentarComUsuario () :
   usuarioId = ''
   comment = '' 
+  todosComentarios = []
   # condição para sair da aba de comentários
 
   userId = login(usuarioId)
@@ -148,18 +149,27 @@ def comentarComUsuario () :
 
       if escolhaUsuarios == (i+1) :
         other_user = usuariosCadastrados[i]['id']
-        comentarioUsuario = supabase.table('comentarios').select('*').eq('other_user' , other_user).eq('comment_owner' , comment_owner).order().execute().data
+        comentarioUsuario = supabase.table('comentarios').select('*').eq('other_user' , other_user).eq('comment_owner' , comment_owner).order('posted_at', desc = True).execute().data
         # aqui, a gente pega os comentários que o usuario atual fez, usando como parâmetro o nome do outro usuário (só pode ser 1) e o nome de quem digitou (só pode ser 1)
 
 
-        comentarioUsuarioResposta = supabase.table('comentarios').select('*').eq('other_user' , comment_owner_id).eq('comment_owner' , usuariosCadastrados[i]['user_name']).execute().data
+        comentarioUsuarioResposta = supabase.table('comentarios').select('*').eq('other_user' , comment_owner_id).eq('comment_owner' , usuariosCadastrados[i]['user_name']).order('posted_at', desc = True).execute().data
         # para liga-los, a gente pega os comentários do outro usuário, usando o seu o id do outro usuário como parâmetro (só pode ter 1 conversa entre os 2) e o próprio nome (tem que ser único também)
         
         print("(",usuariosCadastrados[i]['user_name'] , ")")
         for i in comentarioUsuario :
-          print(i['comment_owner'] , ' :',i['comment'])
+          todosComentarios.append({
+            'nomeUsuario' : i['comment_owner'] ,
+            'comentario': i['comment']
+            })
+          
         for i in comentarioUsuarioResposta :
-          print(i['comment_owner'] , ' :',i['comment'])
+          todosComentarios.append({
+            'nomeUsuario' : i['comment_owner'] ,
+            'comentario': i['comment']
+            })
+          
+          
 
         id = str(uuid.uuid4())
         comment = input('Deixe seu comentário: ')  
